@@ -18,11 +18,11 @@ test-all:
 
 .PHONY: test
 test: init
-	RUST_BACKTRACE=1 cargo test ${ARGS} --  --no-capture --test-threads=1
+	RUST_BACKTRACE=1 cargo test ${ARGS} --all-features --  --no-capture --test-threads=1
 
 .PHONY: test_release
 test_release: init
-	RUST_BACKTRACE=1 cargo test ${ARGS} --release --  --no-capture --test-threads=1
+	RUST_BACKTRACE=1 cargo test ${ARGS} --all-features --release --  --no-capture --test-threads=1
 
 .PHONY: build
 build: init
