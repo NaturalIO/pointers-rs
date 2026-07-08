@@ -24,7 +24,6 @@ test: init
 test_release: init
 	RUST_BACKTRACE=1 cargo test ${ARGS} --release --  --no-capture --test-threads=1
 
-
 .PHONY: build
 build: init
 	cargo build

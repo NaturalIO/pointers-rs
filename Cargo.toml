@@ -1,12 +1,41 @@
 [package]
-name = "rust-template"
-version = "0.0.1"
+name = "pointers"
+version = "0.1.0"
 edition = "2024"
 license = "MIT OR Apache-2.0"
+description = "trait for smart pointers, alternation to Arc, Intrusive ref counting (Irc)"
+keywords = ["intrusive", "smart-pointer", "concurrency"]
+categories = ["data-structures", "no-std"]
+homepage = "https://github.com/NaturalIO/pointers-rs"
+readme = "README.md"
 
 [dependencies]
+atomic-traits = { version="0.4", optional=true}
+
+[dev-dependencies]
+log = { version="0"}
+crossfire = "3.1"
+captains-log = { version="0", features=["ringfile"] }
+rstest = "0"
 
 [package.metadata.docs.rs]
 all-features = true
 # enable features in the documentation
 rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+default = []
+irc = ["dep:atomic-traits"]
+trace_log = []
+
+[lints.clippy]
+new_ret_no_self = "allow"
+needless_range_loop = "allow"
+type_complexity = "allow"
+mut_from_ref = "allow"
+transmute_ptr_to_ref = "allow"
+len_without_is_empty = "allow"
+new_without_default = "allow"
+result_unit_err = "allow"
+collapsible_else_if = "allow"
+collapsible_match = "allow"
