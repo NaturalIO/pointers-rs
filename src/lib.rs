@@ -13,7 +13,7 @@
 //!     - `Rc<T>`, `Arc<T>`
 //!     - [WaitGroupZeroGuard](https://docs.rs/crossfire/latest/crossfire/waitgroup/struct.WaitGroupZeroGuard.html):  see the doc in `crossfire` crate
 //!
-//! - [ClonablePointer] trait: like `Rc<T>`, `Arc<T>`, that allow increase strong count of raw pointer.
+//! - [CloneablePointer] trait: like `Rc<T>`, `Arc<T>`, that allow increase strong count of raw pointer.
 //!
 //! - [SmartPointer]: type that has `new()` method
 //!
@@ -97,7 +97,7 @@ pub trait Pointer: Sized {
     fn into_raw(self) -> *const Self::Target;
 }
 
-pub trait ClonablePointer: Pointer + Clone {
+pub trait CloneablePointer: Pointer + Clone {
     /// # Safety
     ///
     /// The pointer must have been obtained through Pointer::into_raw,
@@ -215,7 +215,7 @@ impl<T> Pointer for Rc<T> {
     }
 }
 
-impl<T> ClonablePointer for Rc<T> {
+impl<T> CloneablePointer for Rc<T> {
     /// # Safety
     ///
     /// The pointer must have been obtained through Pointer::into_raw,
@@ -264,7 +264,7 @@ impl<T> SmartPointer for Arc<T> {
     }
 }
 
-impl<T> ClonablePointer for Arc<T> {
+impl<T> CloneablePointer for Arc<T> {
     /// # Safety
     ///
     /// The pointer must have been obtained through Pointer::into_raw,
