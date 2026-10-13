@@ -13,6 +13,8 @@
 //!     - `Rc<T>`, `Arc<T>`
 //!     - [WaitGroupZeroGuard](https://docs.rs/crossfire/latest/crossfire/waitgroup/struct.WaitGroupZeroGuard.html):  see the doc in `crossfire` crate
 //!
+//! - [ClonablePointer] trait: like `Rc<T>`, `Arc<T>`, that allow increase strong count of raw pointer.
+//!
 //! - [SmartPointer]: type that has `new()` method
 //!
 //! ## Irc (Intrusive Reference Counter)
@@ -93,6 +95,16 @@ pub trait Pointer: Sized {
     unsafe fn from_raw(p: *const Self::Target) -> Self;
 
     fn into_raw(self) -> *const Self::Target;
+}
+
+pub trait ClonablePointer: Pointer + Clone {
+    /// # Safety
+    ///
+    /// The pointer must have been obtained through Pointer::into_raw,
+    /// and must satisfy the same layout requirements specified in Pointer::from_raw.
+    /// The associated instance must be valid (i.e. the strong count must be at least 1) for the duration of this method,
+    /// and ptr must point to a valid block of memory.
+    unsafe fn from_raw_and_clone(p: *const Self::Target) -> Self;
 }
 
 pub trait SmartPointer: Pointer {
@@ -203,6 +215,22 @@ impl<T> Pointer for Rc<T> {
     }
 }
 
+impl<T> ClonablePointer for Rc<T> {
+    /// # Safety
+    ///
+    /// The pointer must have been obtained through Pointer::into_raw,
+    /// and must satisfy the same layout requirements specified in Pointer::from_raw.
+    /// The associated instance must be valid (i.e. the strong count must be at least 1) for the duration of this method,
+    /// and ptr must point to a valid block of memory.
+    #[inline]
+    unsafe fn from_raw_and_clone(p: *const Self::Target) -> Self {
+        unsafe {
+            Rc::increment_strong_count(p);
+            Pointer::from_raw(p)
+        }
+    }
+}
+
 impl<T> SmartPointer for Rc<T> {
     #[inline]
     fn new(inner: T) -> Self {
@@ -233,6 +261,22 @@ impl<T> SmartPointer for Arc<T> {
     #[inline]
     fn new(inner: T) -> Self {
         Arc::new(inner)
+    }
+}
+
+impl<T> ClonablePointer for Arc<T> {
+    /// # Safety
+    ///
+    /// The pointer must have been obtained through Pointer::into_raw,
+    /// and must satisfy the same layout requirements specified in Pointer::from_raw.
+    /// The associated instance must be valid (i.e. the strong count must be at least 1) for the duration of this method,
+    /// and ptr must point to a valid block of memory.
+    #[inline]
+    unsafe fn from_raw_and_clone(p: *const Self::Target) -> Self {
+        unsafe {
+            Arc::increment_strong_count(p);
+            Pointer::from_raw(p)
+        }
     }
 }
 
