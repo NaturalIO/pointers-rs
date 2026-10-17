@@ -1,4 +1,7 @@
+#[cfg(feature = "irc")]
 mod irc;
+#[cfg(feature = "lock")]
+mod lock;
 
 use captains_log::*;
 use core::borrow::Borrow;

@@ -11,6 +11,7 @@ readme = "README.md"
 
 [dependencies]
 atomic-traits = { version="0.4", optional=true}
+crossfire-utils = {version=">=0.1", optional=true, features=[]}
 
 [dev-dependencies]
 log = { version="0"}
@@ -26,6 +27,8 @@ rustdoc-args = ["--cfg", "docsrs"]
 [features]
 default = []
 irc = ["dep:atomic-traits"]
+lock = ["dep:crossfire-utils", "std"]
+std = []
 trace_log = []
 
 [lints.clippy]

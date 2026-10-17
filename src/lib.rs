@@ -17,7 +17,17 @@
 //!
 //! - [SmartPointer]: type that has `new()` method
 //!
+//! ## PointerSpinLock
+//!
+//! [lock module](crate::lock)
+//!
+//! A spinlock packed with atomic pointer, low cost for writer side, for certain scenarios:
+//! - One writer thread and few reader threads. Writer can bypass the lock to read and clone.
+//! - Many objects, the contention on a single object is low.
+//!  
 //! ## Irc (Intrusive Reference Counter)
+//!
+//! [irc module](crate::irc)
 //!
 //! `Irc` is an intrusive reference counting smart pointer, similar to `Arc` but without weak reference support.
 //! It requires the inner type to implement [IrcItem](crate::irc::IrcItem) trait to provide a counter field.
@@ -50,15 +60,16 @@
 //! - Advanced usage, multiple layer customized counter, on the same heap object, while preserving
 //!   the safe boundary
 //!
-//! See [module document](crate::irc) for more.
-//!
 //! ## Feature Flags
 //!
 //! *   **`default`**: only the traits.
 //! *   **`irc`**: Enables the `irc` (intrusive ref count) module.
+//! *   **`lock`**: Enables the lock (spinlock pointer storage) module.
 
 #[cfg(feature = "irc")]
 pub mod irc;
+#[cfg(feature = "lock")]
+pub mod lock;
 
 #[cfg(test)]
 #[allow(unused)]
@@ -87,6 +98,11 @@ pub trait Pointer: Sized {
     #[inline(always)]
     fn as_ptr(&self) -> *const Self::Target {
         self.as_ref() as *const Self::Target
+    }
+
+    #[inline(always)]
+    fn as_ptr_mut(&self) -> *mut Self::Target {
+        self.as_ptr() as *mut Self::Target
     }
 
     /// # Safety
