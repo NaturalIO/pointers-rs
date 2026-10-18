@@ -42,7 +42,7 @@
 //! }
 //! th.join().expect("join");
 //! ```
-use crate::{CloneablePointer, SmartPointer};
+use crate::{CloneablePointer, Pointer};
 use core::marker::PhantomData;
 use core::mem::ManuallyDrop;
 use core::ops::{Deref, DerefMut};
@@ -52,21 +52,21 @@ use core::sync::atomic::{
 };
 use crossfire_utils::backoff::Backoff;
 
-pub struct PointerSpinLock<P: SmartPointer> {
+pub struct PointerSpinLock<P: Pointer> {
     p: AtomicUsize,
     _phan: PhantomData<fn(&P)>,
 }
 
 const LOCK_FLAG: usize = 1;
 
-impl<P: SmartPointer> Default for PointerSpinLock<P> {
+impl<P: Pointer> Default for PointerSpinLock<P> {
     #[inline]
     fn default() -> Self {
         Self::empty()
     }
 }
 
-impl<P: SmartPointer> PointerSpinLock<P> {
+impl<P: Pointer> PointerSpinLock<P> {
     #[inline]
     pub fn empty() -> Self {
         Self { p: AtomicUsize::new(0), _phan: Default::default() }
@@ -199,7 +199,7 @@ impl<P: SmartPointer> PointerSpinLock<P> {
     }
 }
 
-impl<P: CloneablePointer + SmartPointer> PointerSpinLock<P> {
+impl<P: CloneablePointer + Pointer> PointerSpinLock<P> {
     /// If the pointer inside is not None, acquire lock, clone, unlock and return P.
     #[inline]
     pub fn cloned(&self) -> Option<P> {
@@ -244,7 +244,7 @@ impl<P: CloneablePointer + SmartPointer> PointerSpinLock<P> {
     }
 }
 
-impl<P: SmartPointer> Drop for PointerSpinLock<P> {
+impl<P: Pointer> Drop for PointerSpinLock<P> {
     #[inline]
     fn drop(&mut self) {
         let p = *self.p.get_mut();
@@ -255,12 +255,12 @@ impl<P: SmartPointer> Drop for PointerSpinLock<P> {
     }
 }
 
-pub struct PointerSpinGuard<'a, P: SmartPointer> {
+pub struct PointerSpinGuard<'a, P: Pointer> {
     p: ManuallyDrop<P>,
     inner: &'a PointerSpinLock<P>,
 }
 
-impl<'a, P: SmartPointer> Deref for PointerSpinGuard<'a, P> {
+impl<'a, P: Pointer> Deref for PointerSpinGuard<'a, P> {
     type Target = P;
 
     #[inline]
@@ -269,21 +269,21 @@ impl<'a, P: SmartPointer> Deref for PointerSpinGuard<'a, P> {
     }
 }
 
-impl<'a, P: SmartPointer> DerefMut for PointerSpinGuard<'a, P> {
+impl<'a, P: Pointer> DerefMut for PointerSpinGuard<'a, P> {
     #[inline]
     fn deref_mut(&mut self) -> &mut P {
         &mut self.p
     }
 }
 
-impl<'a, P: SmartPointer> AsRef<P::Target> for PointerSpinGuard<'a, P> {
+impl<'a, P: Pointer> AsRef<P::Target> for PointerSpinGuard<'a, P> {
     #[inline]
     fn as_ref(&self) -> &P::Target {
         self.p.as_ref()
     }
 }
 
-impl<'a, P: SmartPointer> Drop for PointerSpinGuard<'a, P> {
+impl<'a, P: Pointer> Drop for PointerSpinGuard<'a, P> {
     #[inline]
     fn drop(&mut self) {
         self.inner._unlock(self.p.as_ptr_mut());
