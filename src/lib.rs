@@ -46,7 +46,7 @@
 //!
 //! - Customized counter type (not limited to AtomicUsize)
 //!
-//! - [IrcItem::on_drop](crate::irc::Ircitem::on_drop) in the trait allow you to have the ownship of underlying inner memory after
+//! - `IrcItem::on_drop` in the trait allow you to have the ownship of underlying inner memory after
 //!   the reference count of Irc is dropped. And you only need to define the drop behavior once,
 //!   instead of write the same logic `Arc::into_inner` in every possible places
 //!   (If forgetting so make your code block and hard to debug).
@@ -64,7 +64,7 @@
 //!
 //! *   **`default`**: only the traits.
 //! *   **`irc`**: Enables the `irc` (intrusive ref count) module.
-//! *   **`lock`**: Enables the lock (spinlock pointer storage) module.
+//! *   **`lock`**: Enables the `lock` (spinlock pointer storage) module.
 
 #[cfg(feature = "irc")]
 pub mod irc;
@@ -118,6 +118,7 @@ pub trait CloneablePointer: Pointer + Clone {
     ///
     /// The pointer must have been obtained through Pointer::into_raw,
     /// and must satisfy the same layout requirements specified in Pointer::from_raw.
+    ///
     /// The associated instance must be valid (i.e. the strong count must be at least 1) for the duration of this method,
     /// and ptr must point to a valid block of memory.
     unsafe fn from_raw_and_clone(p: *const Self::Target) -> Self;
@@ -236,6 +237,7 @@ impl<T> CloneablePointer for Rc<T> {
     ///
     /// The pointer must have been obtained through Pointer::into_raw,
     /// and must satisfy the same layout requirements specified in Pointer::from_raw.
+    ///
     /// The associated instance must be valid (i.e. the strong count must be at least 1) for the duration of this method,
     /// and ptr must point to a valid block of memory.
     #[inline]
@@ -285,6 +287,7 @@ impl<T> CloneablePointer for Arc<T> {
     ///
     /// The pointer must have been obtained through Pointer::into_raw,
     /// and must satisfy the same layout requirements specified in Pointer::from_raw.
+    ///
     /// The associated instance must be valid (i.e. the strong count must be at least 1) for the duration of this method,
     /// and ptr must point to a valid block of memory.
     #[inline]

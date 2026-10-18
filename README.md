@@ -5,23 +5,35 @@
 
 This crate provide two traits for generic coding:
 
-- [`Pointer`](https://docs.rs/pointers/latest/pointers/trait.Pointer.html) trait:
+- [Pointer] trait:
   - raw pointers: `*const T`, `*mut T`, `NonNull<T>`,
   - owned: `Box<T>`,
   - multiple-ownership:
     - `Rc<T>`, `Arc<T>`
     - [WaitGroupZeroGuard](https://docs.rs/crossfire/latest/crossfire/waitgroup/struct.WaitGroupZeroGuard.html):  see the doc in `crossfire` crate
 
-- [`SmartPointer`](https://docs.rs/pointers/latest/pointers/trait.SmartPointer.html): type that has `new()` method
+- [CloneablePointer] trait: like `Rc<T>`, `Arc<T>`, that allow increase strong count of raw pointer.
 
+- [SmartPointer]: type that has `new()` method
+
+## PointerSpinLock
+
+[lock module](https://docs.rs/pointers/latest/pointers/lock/)
+
+A spinlock packed with atomic pointer, low cost for writer side, for certain scenarios:
+- One writer thread and few reader threads. Writer can bypass the lock to read and clone.
+- Many objects, the contention on a single object is low.
+ 
 ## Irc (Intrusive Reference Counter)
 
+[irc module](https://docs.rs/pointers/latest/pointers/irc/)
+
 `Irc` is an intrusive reference counting smart pointer, similar to `Arc` but without weak reference support.
-It requires the inner type to implement IrcItem trait to provide a counter field.
+It requires the inner type to implement [IrcItem](https://docs.rs/pointers/latest/pointers/irc/trait.IrcItem.html) trait to provide a counter field.
 
 The underlayer of `Irc` can be any types implementing `Pointer` (default to be Box),
 unlike `Arc` which wrap a hidden ArcInner on your inner types,
-Irc use the pointer of your inner types by [`Pointer::into_raw`](https://docs.rs/pointers/latest/pointers/trait.Pointer.html#tymethod.into_raw)
+Irc use the pointer of your inner types by [Pointer::into_raw]
 
 The atomic ordering is mostly the same with std `Arc` (miri test cases verified)
 
@@ -33,7 +45,7 @@ The atomic ordering is mostly the same with std `Arc` (miri test cases verified)
 
 - Customized counter type (not limited to AtomicUsize)
 
-- IrcItem::on_drop in the trait allow you to have the ownship of underlying inner memory after
+- `IrcItem::on_drop` in the trait allow you to have the ownship of underlying inner memory after
   the reference count of Irc is dropped. And you only need to define the drop behavior once,
   instead of write the same logic `Arc::into_inner` in every possible places
   (If forgetting so make your code block and hard to debug).
@@ -47,11 +59,10 @@ The atomic ordering is mostly the same with std `Arc` (miri test cases verified)
 - Advanced usage, multiple layer customized counter, on the same heap object, while preserving
   the safe boundary
 
-See module document for more.
-
 ## Feature Flags
 
 *   **`default`**: only the traits.
 *   **`irc`**: Enables the `irc` (intrusive ref count) module.
+*   **`lock`**: Enables the `lock` (spinlock pointer storage) module.
 
 <!-- cargo-rdme end -->
