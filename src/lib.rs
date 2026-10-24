@@ -4,7 +4,7 @@
 //!
 //! # pointers
 //!
-//! This crate provide two traits for generic coding:
+//! This crate provide traits for generic coding:
 //!
 //! - [Pointer] trait:
 //!   - raw pointers: `*const T`, `*mut T`, `NonNull<T>`,
@@ -24,7 +24,7 @@
 //! A spinlock packed with atomic pointer, low cost for writer side, for certain scenarios:
 //! - One writer thread and few reader threads. Writer can bypass the lock to read and clone.
 //! - Many objects, the contention on a single object is low.
-//!  
+//!
 //! ## Irc (Intrusive Reference Counter)
 //!
 //! [irc module](crate::irc)
